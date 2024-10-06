@@ -231,14 +231,32 @@ class Solution(object):
             if strs[0][i]==strs[-1][i]:
                 res.append(strs[0][i])
             else:
-                res=""
                 break
+        res=''.join(res)
         return res
-        
-      
+    def strStr(self, haystack, needle):
+        """
+        :type haystack: str
+        :type needle: str
+        :rtype: int
+        """
+        index=haystack.find(needle)
+        return index
+    def isPalindrome(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        s=s.lower().replace(" ", "")
+        new=[]
+        for i in s:
+            if i.isalnum():
+                new.append(i)
+        return new==new[::-1]
+     
 x=Solution()
-print(x.longestCommonPrefix(["flower","flow","flight"]))
-
+print(x.isPalindrome(" "))
+#print(x.longestCommonPrefix(["flower","flow","flight"]))
 #print(x.romanToInt("III"))
 #print(x.containsNearbyDuplicate([1,2,3,1,2,3],k=3))
 #print(x.intersect([1,2,2,1],[2,2]))
