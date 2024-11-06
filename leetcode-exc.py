@@ -177,23 +177,6 @@ class Solution(object):
         :rtype: List[List[int]]
         """
         res=[[1],[1,1]]
-    def containsNearbyDuplicate(self, nums, k):
-        """
-        :type nums: List[int]
-        :type k: int
-        :rtype: bool
-        """
-        l=len(nums)
-        flag=0
-        for i in range(l):
-            for j in range(i+1,l):
-                if nums[i]==nums[j]: 
-                    print(abs(i-j))
-                    if abs(i-j)<=k:
-                        flag+=1
-                    else:
-                        flag=0
-        return flag>=1 
     def merge(self, nums1, m, nums2, n):
         """
         :type nums1: List[int]
@@ -446,13 +429,13 @@ class Solution(object):
         s_lst,t_lst=list(),list()
         for i in s:
             if i=='#':
-                if len(s_lst) is not 0:
+                if len(s_lst)!=0:
                     s_lst.pop()
             else:
                     s_lst.append(i)
         for j in t:
             if j=='#':
-                if len(t_lst) is not 0:
+                if len(t_lst)!=0:
                     t_lst.pop()
             else:
                     t_lst.append(j)
@@ -573,16 +556,114 @@ class Solution(object):
                 l+=1
                 r-=1
         return res
-                
-x=Solution()  
-print(x.numRescueBoats([3,2,2,1],3))
+    #sliding window
+    def containsNearbyDuplicate(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: bool
+        """
+        window=set()
+        l=0
+        for r in range(len(nums)):
+            if r-l>k:
+                window.remove(nums[l])
+                l+=1
+            if nums[r] in window:
+                return True
+            window.add(nums[r])
+        return False
+    def numOfSubarrays(self, arr, k, threshold): #copied, my code only passed 67/69 test cases
+        """
+        :type arr: List[int]
+        :type k: int
+        :type threshold: int
+        :rtype: int
+        """
+        res=0
+        target_sum=threshold*k
+        current_sum=sum(arr[:k]) #initial sum
+        if current_sum>=target_sum:
+            res+=1
+        for i in range(k, len(arr)):
+            current_sum+=arr[i]-arr[i-k]
+            if current_sum>=target_sum:
+                res+=1  
+        return res
+    def lengthOfLongestSubstring(self, s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        i,j,l,m=0,1,len(s),0
+        p=set()
+        if l==1:
+            return 1
+        while j<l and i<l-1:
+            p.add(s[i])
+            if s[j] not in p:
+                p.add(s[j])
+                j+=1
+                m=max(m,len(p))
+            else:
+                i+=1
+                j=i+1
+                m=max(m,len(p))
+                p.clear()
+        return m
+    def checkInclusion(self, s1, s2):
+        """
+        :type s1: str
+        :type s2: str
+        :rtype: bool
+        """
+        l_s1=len(s1)
+        l_s2=len(s2)
+        d1,d2={},{}
+        i,j=0,0
+        if l_s1 > l_s2:
+            return False
+        while i<l_s1:
+            if s1[i] not in d1:
+                d1[s1[i]]=1
+            else:
+                d1[s1[i]]=d1[s1[i]]+1
+            i+=1
+        i=0
+        while i<=(l_s2-l_s1):
+            if d1==d2:
+                break
+            if (j-i)<l_s1:
+                if s2[j] and (s2[j] in s1): 
+                    if s2[j] not in d2:
+                        d2[s2[j]]=1
+                    else:
+                        d2[s2[j]]+=1
+                        d2[s2[i - l_s1]] -= 1
+                    j+=1
+                else:
+                    i+=1
+                    j=i
+                    d2={}
+            else:
+                i+=1
+                j=i
+                d2={}
+        return d1==d2
+
+x=Solution() 
+print(x.checkInclusion("adc","dcda"))
+#print(x.lengthOfLongestSubstring("bbbbb"))
+#print(x.numOfSubarrays([11,13,17,23,29,31,7,5,2,3],3,5)) 
+#print(x.containsNearbyDuplicate([1,2,3,1],k=3)) 
+#print(x.numRescueBoats([3,2,2,1],3))
 #print(x.rearrangeArray([6,2,0,9,7]))
 #print(x.rotate([1,2,3,4,5,6,7],3))
 #print(x.backspaceCompare())  
 #print(x.numSubseq([3,5,6,7],9))
 #print(x.threeSum([-2,0,1,1,2])) 
 #print(x.twoSum2([-1,0],-1))
-#print(x.removeDuplicates2([0,0,1,1,1,1,2,3,3]))
+#print(x.removeDuplicates2([1,0,1,1]))
 #print(x.arrayStringsAreEqual(["abc", "d", "defg"],["abcddefg"]))
 #print(x.backspaceCompare("y#fo##f","y#f#o##f"))
 #print(x.convert("PAYPALISHIRING", 3))
@@ -599,7 +680,6 @@ print(x.numRescueBoats([3,2,2,1],3))
 #print(x.isPalindrome(" "))
 #print(x.longestCommonPrefix(["flower","flow","flight"]))
 #print(x.romanToInt("III"))
-#print(x.containsNearbyDuplicate([1,2,3,1,2,3],k=3))
 #print(x.intersect([1,2,2,1],[2,2]))
 #print(x.moveZeroes([0]))
 #print(x.missingNumber([3,0,1]))
