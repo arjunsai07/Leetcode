@@ -1,7 +1,48 @@
-
-import numpy as np
+#import numpy as np
 from collections import defaultdict
 from collections import Counter
+from collections import deque
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+def insert(values):
+    #if root is None or values[0] is None:
+    if not values:
+        return None
+    root=TreeNode(values[0])
+    queue=deque([root])
+    i=1
+    while queue and i<len(values):
+        current=queue.popleft()
+        if i<len(values) and values[i] is not None:
+            current.left=TreeNode(values[i])
+            queue.append(current.left)
+        i+=1
+        if i<len(values) and values[i] is not None:
+            current.right=TreeNode(values[i])
+            queue.append(current.right)
+        i+=1
+    return root
+def preorder_traversal(root):
+    if root:
+        print(root.val,end=" ")
+        preorder_traversal(root.left) 
+        preorder_traversal(root.right)
+def bfs(root):
+    if root is None:
+        return []
+    result = []
+    queue = deque([root])
+    while queue:
+        node = queue.popleft()
+        result.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return result 
 class Solution(object):
     def longestConsecutive(self, nums):
         d={}
@@ -650,9 +691,194 @@ class Solution(object):
                 j=i
                 d2={}
         return d1==d2
-
+    def maxFrequency(self, nums, k): #copied
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        l,r=0,0
+        res,total=0,0
+        nums.sort()
+        while r<len(nums):
+            total+=nums[r]
+            while nums[r]*(r-l+1)>total+k: #shrink window size
+                total-=nums[l]
+                l+=1
+            res=max(res,r-l+1)
+            r+=1
+        return res 
+    def totalFruit(self, fruits): 
+        l,r=0,0 
+        res=0 
+        d={} 
+        while r<len(fruits):   
+            if fruits[r] not in d: 
+                d[fruits[r]]=1 
+            else:
+                d[fruits[r]]+=1
+            while len(d)>2:  # If we have more than 2 types of fruits, shrink the window from the left
+                d[fruits[l]]-=1
+                if d[fruits[l]]==0:
+                    del d[fruits[l]]
+                l+=1  
+            if fruits[r] not in d: 
+                l+=1 
+                r=l 
+                d={} 
+                continue 
+            else: 
+                res=max(res,len(fruits[l:r+1])) 
+                r+=1 
+        return res
+    def maxVowels(self, s, k):
+        """
+        :type s: str
+        :type k: int
+        :rtype: int
+        """
+        i=0
+        vowels,m_max=0,0
+        l={'a','e','i','o','u'}
+        p=len(s)
+        if p==1:
+            if s[i] in l:
+                return 1
+            else:
+                return 0
+        while i in range(k):
+            if s[i] in l:
+                vowels+=1
+            i+=1
+            m_max=max(vowels,m_max)
+        while i in range(k,len(s)):
+            if s[i-k] in l:
+                vowels-=1
+            if s[i] in l:
+                vowels+=1
+            m_max=max(vowels,m_max)
+            i+=1
+        return m_max
+    def characterReplacement(self, s, k):
+        """
+        :type s: str
+        :type k: int
+        :rtype: int
+        """
+        i,j=0,0
+        m=0
+        res=0
+        d={}
+        while j<len(s):
+            if s[j] not in d: 
+                d[s[j]]=1 
+            else:
+                d[s[j]]+=1
+            m=max(d.values())
+            if((j-i+1)-m)<=k:
+                j+=1
+            else:
+                d[s[i]]-=1
+                i+=1
+                j+=1
+        return j-i
+    def minWindow(self, s, t): #need to work
+        """
+        :type s: str
+        :type t: str
+        :rtype: str
+        """
+        i,j=0,0
+        res,q="",0
+        have,need=0,0
+        d_t,d_s={},{} #d1-t, d2-s
+        if s==t:
+            return s
+        for p in range(len(t)):
+            if t[p] not in d_t: 
+                d_t[t[p]]=1 
+            else:
+                d_t[t[p]]+=1
+        need=sum(d_t.values()) #sum of need
+        while j<len(s):
+            if j<len(s) and (s[j] in d_t):
+                if s[j] and (s[j] not in d_s): 
+                    d_s[s[j]]=1 
+                else:
+                    d_s[s[j]]+=1
+                have+=1
+            j+=1
+            if len(d_t.keys())==1 and d_s==d_t:
+                return t
+            while have==need:
+                if (j-i)<q:
+                    res=s[i:j]
+                    q=j-i
+                if s[i] in d_s:
+                    d_s[s[i]]-=1
+                    have-=1
+                    i+=1
+                else:
+                    i+=1
+        return res
+    def invertTree(self,root: TreeNode) -> TreeNode:
+        if not root: #if root is null
+            return None
+        #swap the children nodes
+        tmp=root.left
+        root.left=root.right
+        root.right=tmp
+        #recursively invert subtrees
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+        return root
+    def maxDepth(self,root:TreeNode) -> int:
+        level=0
+        if not root:
+            return 0
+        q=deque([root])
+        while q:
+            for i in range(len(q)): #for every element in the queue, remove the element and enqueue its children
+                node=q.popleft()
+                if node.left: #if left child exists
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+            level+=1
+        return level
+    def diaBinTree(self, root:TreeNode) -> int:
+        self.res=0
+        def dfs(curr):
+            if not curr:
+                return 0
+            left=dfs(curr.left)
+            right=dfs(curr.right)
+            self.res=max(self.res,left+right) #diameter is the sum of max height of left and right
+            return 1 + max(left,right)
+        dfs(root)
+        return self.res
+    
 x=Solution() 
-print(x.checkInclusion("adc","dcda"))
+#Tree Operations
+#values=[3,9,20,None,None,15,7]
+#root=insert(None,values[0])
+#for i in range(1,len(values)):
+#    insert(root,values[i])
+values=[1,2]
+root=insert(values)
+print(x.diaBinTree(root))
+#preorder_traversal(root)
+#out=x.invertTree(root)
+#print(bfs(root))
+#print(x.maxDepth(root))
+
+
+#print(x.minWindow("ADOBECODEBANC","ABC")) #need to complete
+#print(x.characterReplacement("AABABBA",1))
+#print(x.maxVowels("ibpbhixfiouhdljnjfflpapptrxgcomvnb",33))
+#print(x.totalFruit([1,2,3,2,2]))
+#print(x.maxFrequency([1,4,8,13],5))
+#print(x.checkInclusion("adc","dcda"))
 #print(x.lengthOfLongestSubstring("bbbbb"))
 #print(x.numOfSubarrays([11,13,17,23,29,31,7,5,2,3],3,5)) 
 #print(x.containsNearbyDuplicate([1,2,3,1],k=3)) 
